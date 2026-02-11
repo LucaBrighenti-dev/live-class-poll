@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Analytics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-purple: #bc13fe;
+            --neon-yellow: #f1c40f;
+            --neon-red: #ff0055;
+            --bg-dark: #050505;
+        }
+        body {
+            background-color: var(--bg-dark);
+            font-family: 'Orbitron', sans-serif;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- THE RETRO GRID BACKGROUND --- */
+        .perspective-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            perspective: 600px;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .grid-floor {
+            position: absolute;
+            bottom: -30%;
+            left: -50%;
+            width: 200%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 243, 255, 0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.3) 1px, transparent 1px);
+            background-size: 50px 50px;
+            transform: rotateX(75deg);
+            animation: grid-move 5s linear infinite;
+            mask-image: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%);
+        }
+        @keyframes grid-move {
+            0% { transform: rotateX(75deg) translateY(0); }
+            100% { transform: rotateX(75deg) translateY(50px); }
+        }
+
+        /* --- UI OVERLAY --- */
+        .ui-layer {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            padding-bottom: 20px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin: 0;
+            text-shadow: 0 0 20px rgba(255,255,255,0.3);
+        }
+        .connection-status {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.5rem;
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        /* --- THE BARS --- */
+        .chart-container {
+            flex: 1;
+            display: flex;
+            align-items: flex-end; /* Align bars to bottom */
+            justify-content: space-around;
+            padding-bottom: 50px;
+            perspective: 1000px;
+        }
+        
+        .bar-wrapper {
+            width: 15%;
+            height: 80%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            position: relative;
+        }
+
+        .bar {
+            width: 100%;
+            height: 0%; /* Animates */
+            background: rgba(255,255,255,0.1);
+            position: relative;
+            transition: height 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy physics */
+            border-top: 4px solid white;
+        }
+
+        /* Neon Styles per bar */
+        #bar-Aerospace { background: linear-gradient(to top, rgba(255,0,85,0.1), var(--neon-red)); box-shadow: 0 0 30px var(--neon-red); border-color: var(--neon-red); }
+        #bar-Mechanical { background: linear-gradient(to top, rgba(0,243,255,0.1), var(--neon-blue)); box-shadow: 0 0 30px var(--neon-blue); border-color: var(--neon-blue); }
+        #bar-Mechatronic { background: linear-gradient(to top, rgba(241,196,15,0.1), var(--neon-yellow)); box-shadow: 0 0 30px var(--neon-yellow); border-color: var(--neon-yellow); }
+        #bar-Nuclear { background: linear-gradient(to top, rgba(188,19,254,0.1), var(--neon-purple)); box-shadow: 0 0 30px var(--neon-purple); border-color: var(--neon-purple); }
+
+        .label {
+            text-align: center;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-top: 20px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .count {
+            position: absolute;
+            top: -50px;
+            width: 100%;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 900;
+            opacity: 0; /* Hidden until votes start */
+            transition: opacity 0.3s;
+        }
+
+        /* QR Code Panel */
+        .qr-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.1);
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        .qr-panel:hover {
+            opacity: 0.7;
+        }
+        .qr-panel.hidden {
+            display: none;
+        }
+        .qr-panel img {
+            width: 160px;
+            height: 160px;
+            border-radius: 8px;
+        }
+        .qr-panel p {
+            margin: 10px 0 0 0;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.9rem;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .qr-hint {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.3);
+            margin-top: 5px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="perspective-container">
+        <div class="grid-floor"></div>
+    </div>
+
+    <!-- QR Code Panel (click to hide) -->
+    <div class="qr-panel" id="qr-panel" title="Click to hide">
+        <img id="qr-code" alt="QR Code" />
+        <p>Scan to Vote</p>
+        <div class="qr-hint">click to hide</div>
+    </div>
+
+    <div class="ui-layer">
+        <header>
+            <h1>Live Class Poll</h1>
+            <div class="connection-status">
+                STUDENTS CONNECTED: <span id="conn-count">0</span>
+            </div>
+        </header>
+
+        <div class="chart-container">
+            <div class="bar-wrapper">
+                <div class="count" id="count-Aerospace">0</div>
+                <div class="bar" id="bar-Aerospace"></div>
+                <div class="label" style="color: var(--neon-red)">Aerospace</div>
+            </div>
+
+            <div class="bar-wrapper">
+                <div class="count" id="count-Mechanical">0</div>
+                <div class="bar" id="bar-Mechanical"></div>
+                <div class="label" style="color: var(--neon-blue)">Mechanical</div>
+            </div>
+
+            <div class="bar-wrapper">
+                <div class="count" id="count-Mechatronic">0</div>
+                <div class="bar" id="bar-Mechatronic"></div>
+                <div class="label" style="color: var(--neon-yellow)">Mechatronic</div>
+            </div>
+
+            <div class="bar-wrapper">
+                <div class="count" id="count-Nuclear">0</div>
+                <div class="bar" id="bar-Nuclear"></div>
+                <div class="label" style="color: var(--neon-purple)">Nuclear</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code Generator (lightweight, no dependencies) -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Generate QR code pointing to the mobile voting page
+        (function() {
+            const baseUrl = window.location.origin + '/mobile.html';
+            const qrImg = document.getElementById('qr-code');
+            QRCode.toDataURL(baseUrl, {
+                width: 320,
+                margin: 2,
+                color: { dark: '#00f3ff', light: '#050505' }
+            }).then(url => {
+                qrImg.src = url;
+            });
+            // Click to toggle visibility
+            document.getElementById('qr-panel').addEventListener('click', function() {
+                this.classList.add('hidden');
+            });
+        })();
+    </script>
+    <script>
+        const socket = io();
+
+        // Elements
+        const counters = {
+            Aerospace: document.getElementById('count-Aerospace'),
+            Mechanical: document.getElementById('count-Mechanical'),
+            Mechatronic: document.getElementById('count-Mechatronic'),
+            Nuclear: document.getElementById('count-Nuclear')
+        };
+        const bars = {
+            Aerospace: document.getElementById('bar-Aerospace'),
+            Mechanical: document.getElementById('bar-Mechanical'),
+            Mechatronic: document.getElementById('bar-Mechatronic'),
+            Nuclear: document.getElementById('bar-Nuclear')
+        };
+        const connDisplay = document.getElementById('conn-count');
+
+        // Logic
+        socket.on('updateConnections', (count) => {
+            connDisplay.innerText = count;
+        });
+
+        socket.on('updateVotes', (votes) => {
+            // Find the highest vote to normalize height (so the leader is always 100% height)
+            const maxVal = Math.max(...Object.values(votes), 1); // Avoid div by 0
+
+            for (const [team, count] of Object.entries(votes)) {
+                // Update Number
+                counters[team].innerText = count;
+                counters[team].style.opacity = count > 0 ? 1 : 0;
+
+                // Update Bar Height (Relative to the leader, not total)
+                // This makes the race look more competitive
+                const percentage = (count / maxVal) * 100;
+                bars[team].style.height = percentage + '%';
+            }
+        });
+
+        // Initialize with existing data (e.g. if you refresh the screen mid-vote)
+        socket.on('init', (data) => {
+            connDisplay.innerText = data.totalConnections;
+            const votes = data.votes;
+            const maxVal = Math.max(...Object.values(votes), 1);
+            for (const [team, count] of Object.entries(votes)) {
+                counters[team].innerText = count;
+                counters[team].style.opacity = count > 0 ? 1 : 0;
+                const percentage = (count / maxVal) * 100;
+                bars[team].style.height = percentage + '%';
+            }
+        });
+    </script>
+</body>
+</html>
