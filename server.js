@@ -9,6 +9,11 @@ const io = new Server(server);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Root URL → send students to the voting page
+app.get('/', (req, res) => {
+    res.redirect('/mobile.html');
+});
+
 // State
 let votes = { "Aerospace": 0, "Mechanical": 0, "Mechatronic": 0, "Nuclear": 0 };
 let totalConnections = 0;
