@@ -187,19 +187,9 @@
         #bar-ALittle { background: linear-gradient(to top, rgba(241,196,15,0.1), var(--neon-yellow)); box-shadow: 0 0 30px var(--neon-yellow); border-color: var(--neon-yellow); }
         #bar-NotVery { background: linear-gradient(to top, rgba(255,0,85,0.1), var(--neon-red)); box-shadow: 0 0 30px var(--neon-red); border-color: var(--neon-red); }
 
-        /* --- QR Code Panel (moved to bottom-right to avoid overlap) --- */
+        /* --- QR Code Panel (inline, below header) --- */
         .qr-panel {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(10, 10, 10, 0.95);
-            border: 1px solid rgba(0, 243, 255, 0.3);
-            border-radius: 12px;
-            padding: 15px;
             text-align: center;
-            z-index: 10;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.1);
             cursor: pointer;
             transition: opacity 0.3s;
         }
@@ -210,14 +200,16 @@
             display: none;
         }
         .qr-panel img {
-            width: 140px;
-            height: 140px;
+            width: 200px;
+            height: 200px;
             border-radius: 8px;
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
         }
         .qr-panel p {
             margin: 8px 0 0 0;
             font-family: 'Rajdhani', sans-serif;
-            font-size: 0.85rem;
+            font-size: 1rem;
             color: var(--neon-blue);
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -295,13 +287,6 @@
         <div class="grid-floor"></div>
     </div>
 
-    <!-- QR Code Panel (bottom-right, no overlap) -->
-    <div class="qr-panel" id="qr-panel" title="Click to hide">
-        <img src="/qr-code.png" alt="QR Code" />
-        <p>Scan to Vote</p>
-        <div class="qr-hint">click to hide</div>
-    </div>
-
     <!-- Hidden Reset Overlay -->
     <div class="reset-overlay" id="reset-overlay">
         <label>Admin Reset</label>
@@ -316,6 +301,11 @@
             <div class="header-right">
                 <div class="connection-status">
                     STUDENTS CONNECTED: <span id="conn-count">0</span>
+                </div>
+                <div class="qr-panel" id="qr-panel" title="Click to hide">
+                    <img src="/qr-code.png" alt="QR Code" />
+                    <p>Scan to Vote</p>
+                    <div class="qr-hint">click to hide</div>
                 </div>
             </div>
         </header>
