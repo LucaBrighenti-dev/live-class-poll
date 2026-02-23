@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DESN1000 – How Was Your First Week?</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --unsw-yellow: #FFE600;
+            --unsw-yellow-light: #FFF8B3;
+            --unsw-yellow-dark: #E6CF00;
+            --unsw-charcoal: #231F20;
+            --unsw-dark: #1A1A1A;
+            --unsw-grey: #58595B;
+            --unsw-light-grey: #F5F5F5;
+            --white: #FFFFFF;
+            --green: #22C55E;
+            --green-bg: rgba(34, 197, 94, 0.08);
+            --red: #EF4444;
+            --red-bg: rgba(239, 68, 68, 0.08);
+            --star-color: #FFE600;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--white);
+            color: var(--unsw-charcoal);
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── CONNECTION BANNER ────────────────── */
+        .connection-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--red);
+            color: var(--white);
+            text-align: center;
+            padding: 10px 16px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            z-index: 100;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .connection-banner.visible {
+            transform: translateY(0);
+        }
+        .connection-banner .spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ── HEADER ─────────────────────────── */
+        .header {
+            background: var(--unsw-charcoal);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .header img {
+            height: 36px;
+            width: auto;
+        }
+        .header-text {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+        .header-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--unsw-yellow);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        .header-subtitle {
+            font-size: 0.65rem;
+            font-weight: 400;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 0.5px;
+        }
+
+        /* ── PROGRESS BAR ────────────────────── */
+        .progress-container {
+            background: var(--unsw-light-grey);
+            padding: 16px 20px 12px;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .progress-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .back-btn {
+            background: none;
+            border: 1px solid #D0D0D0;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--unsw-grey);
+            cursor: pointer;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .back-btn:active {
+            background: rgba(0,0,0,0.05);
+        }
+        .progress-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--unsw-grey);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .progress-count {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--unsw-charcoal);
+        }
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            background: #E0E0E0;
+            border-radius: 100px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--unsw-yellow);
+            border-radius: 100px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 0%;
+        }
+
+        /* ── SCREENS ─────────────────────────── */
+        .screen {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            animation: fadeSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .screen.active { display: flex; }
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── QUESTION CARD ───────────────────── */
+        .question-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 24px;
+            max-width: 480px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        .q-number {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--unsw-yellow-dark);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 14px;
+            background: rgba(255, 230, 0, 0.12);
+            padding: 5px 16px;
+            border-radius: 100px;
+        }
+        .q-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            line-height: 1.35;
+            color: var(--unsw-charcoal);
+            margin-bottom: 40px;
+        }
+        .q-emoji {
+            font-size: 3.2rem;
+            margin-bottom: 20px;
+        }
+
+        /* ── YES / NO BUTTONS ────────────────── */
+        .btn-group {
+            display: flex;
+            gap: 14px;
+            width: 100%;
+        }
+        .vote-btn {
+            flex: 1;
+            border: none;
+            border-radius: 18px;
+            padding: 28px 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .vote-btn:active {
+            transform: scale(0.96);
+        }
+        .btn-yes {
+            background: var(--green-bg);
+            color: #16A34A;
+            border: 2px solid rgba(34, 197, 94, 0.2);
+        }
+        .btn-yes:active, .btn-yes.selected {
+            background: var(--green);
+            color: white;
+            border-color: var(--green);
+            box-shadow: 0 6px 24px rgba(34, 197, 94, 0.35);
+            transform: translateY(-2px);
+        }
+        .btn-no {
+            background: var(--red-bg);
+            color: #DC2626;
+            border: 2px solid rgba(239, 68, 68, 0.2);
+        }
+        .btn-no:active, .btn-no.selected {
+            background: var(--red);
+            color: white;
+            border-color: var(--red);
+            box-shadow: 0 6px 24px rgba(239, 68, 68, 0.35);
+            transform: translateY(-2px);
+        }
+        .btn-icon {
+            font-size: 2.2rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        /* ── STAR RATING ─────────────────────── */
+        .star-group {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+        .star-btn {
+            background: var(--unsw-light-grey);
+            border: 2px solid #E5E5E5;
+            border-radius: 18px;
+            flex: 1;
+            min-width: 0;
+            aspect-ratio: 0.72;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .star-btn:active {
+            transform: scale(0.93);
+        }
+        .star-btn .star-icon {
+            font-size: 1.9rem;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .star-btn .star-num {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--unsw-grey);
+        }
+        .star-btn.active {
+            background: var(--unsw-yellow);
+            border-color: var(--unsw-yellow-dark);
+            box-shadow: 0 6px 24px rgba(255, 230, 0, 0.45);
+            transform: translateY(-3px);
+        }
+        .star-btn.active:active {
+            transform: translateY(-3px) scale(0.93);
+        }
+        .star-btn.active .star-icon {
+            transform: scale(1.2);
+        }
+        .star-btn.active .star-num {
+            color: var(--unsw-charcoal);
+            font-weight: 800;
+        }
+        .star-labels {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 14px;
+            padding: 0 8px;
+        }
+        .star-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--unsw-grey);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        /* ── THANKS SCREEN ───────────────────── */
+        .thanks-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 24px;
+            max-width: 480px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        .thanks-check {
+            width: 80px;
+            height: 80px;
+            background: var(--unsw-yellow);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            0%   { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+        .thanks-check svg {
+            width: 40px;
+            height: 40px;
+        }
+        .thanks-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--unsw-charcoal);
+            margin-bottom: 8px;
+        }
+        .thanks-sub {
+            font-size: 0.95rem;
+            font-weight: 400;
+            color: var(--unsw-grey);
+            line-height: 1.5;
+        }
+        .thanks-badge {
+            margin-top: 32px;
+            background: var(--unsw-charcoal);
+            color: var(--unsw-yellow);
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 10px 24px;
+            border-radius: 100px;
+        }
+        .edit-btn {
+            margin-top: 20px;
+            background: none;
+            border: 1px solid #D0D0D0;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--unsw-grey);
+            padding: 10px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .edit-btn:active {
+            background: var(--unsw-light-grey);
+        }
+
+        /* ── FOOTER BAR ──────────────────────── */
+        .footer-bar {
+            background: var(--unsw-light-grey);
+            border-top: 1px solid #E8E8E8;
+            padding: 12px 20px;
+            text-align: center;
+        }
+        .footer-bar span {
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: rgba(0,0,0,0.3);
+            letter-spacing: 0.5px;
+        }
+
+        /* ── INTRO SCREEN ────────────────────── */
+        .intro-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 24px;
+            max-width: 480px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        .intro-emoji {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            animation: wave 2s ease-in-out infinite;
+        }
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(12deg); }
+            75% { transform: rotate(-12deg); }
+        }
+        .intro-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--unsw-charcoal);
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+        .intro-sub {
+            font-size: 0.95rem;
+            color: var(--unsw-grey);
+            margin-bottom: 36px;
+            line-height: 1.5;
+        }
+        .start-btn {
+            background: var(--unsw-yellow);
+            color: var(--unsw-charcoal);
+            border: none;
+            border-radius: 16px;
+            padding: 20px 56px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 6px 24px rgba(255, 230, 0, 0.35);
+            -webkit-tap-highlight-color: transparent;
+            width: 100%;
+            max-width: 320px;
+        }
+        .start-btn:active {
+            transform: scale(0.96);
+            box-shadow: 0 2px 10px rgba(255, 230, 0, 0.3);
+        }
+
+        /* ── Disable buttons after selection ── */
+        .btn-group.disabled .vote-btn,
+        .star-group.disabled .star-btn {
+            pointer-events: none;
+        }
+        .btn-group.disabled .vote-btn:not(.selected) {
+            opacity: 0.25;
+        }
+        .star-group.disabled .star-btn:not(.active) {
+            opacity: 0.25;
+        }
+
+        /* ── Focus styles (keyboard a11y) ──── */
+        .vote-btn:focus-visible,
+        .star-btn:focus-visible,
+        .start-btn:focus-visible,
+        .back-btn:focus-visible,
+        .edit-btn:focus-visible {
+            outline: 3px solid var(--unsw-yellow);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Connection Banner -->
+    <div id="connection-banner" class="connection-banner" role="alert" aria-live="assertive">
+        <div class="spinner"></div>
+        <span>Connection lost. Reconnecting...</span>
+    </div>
+
+    <!-- HEADER -->
+    <div class="header" role="banner">
+        <img src="/unsw-logo.png" alt="UNSW Sydney" style="height:36px; filter: brightness(0) invert(1);">
+        <div class="header-text">
+            <div class="header-title">DESN1000</div>
+            <div class="header-subtitle">Engineering Design &amp; Innovation</div>
+        </div>
+    </div>
+
+    <!-- PROGRESS BAR -->
+    <div class="progress-container" id="progress-container" style="display:none;">
+        <div class="progress-info">
+            <div class="progress-left">
+                <button id="back-btn" class="back-btn" onclick="goBack()" style="display:none;" aria-label="Go to previous question">&larr; Back</button>
+                <span class="progress-label">Progress</span>
+            </div>
+            <span class="progress-count" id="progress-text">0 / 6</span>
+        </div>
+        <div class="progress-track">
+            <div class="progress-fill" id="progress-fill"
+                 role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="6"
+                 aria-label="Survey progress"></div>
+        </div>
+    </div>
+
+    <!-- INTRO -->
+    <div class="screen active" id="screen-intro">
+        <div class="intro-area">
+            <div class="intro-emoji" aria-hidden="true">&#x1F44B;</div>
+            <div class="intro-title">How Was Your<br>First Week?</div>
+            <div class="intro-sub">Quick 6-question survey — takes<br>less than 30 seconds!</div>
+            <button class="start-btn" onclick="startSurvey()">Let's Go</button>
+        </div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="screen" id="screen-q1">
+        <div class="question-area">
+            <div class="q-emoji" aria-hidden="true">&#x1F3EB;</div>
+            <div class="q-number">Question 1</div>
+            <div class="q-text" id="q-text-q1">Was it easy to find your lecture?</div>
+            <div class="btn-group" id="group-q1" role="group" aria-labelledby="q-text-q1">
+                <button class="vote-btn btn-yes" onclick="answerYesNo('findLecture','Yes', this, 'q1')" aria-label="Yes">
+                    <span class="btn-icon" aria-hidden="true">&#x1F44D;</span>Yes
+                </button>
+                <button class="vote-btn btn-no" onclick="answerYesNo('findLecture','No', this, 'q1')" aria-label="No">
+                    <span class="btn-icon" aria-hidden="true">&#x1F44E;</span>No
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="screen" id="screen-q2">
+        <div class="question-area">
+            <div class="q-emoji" aria-hidden="true">&#x1F4BB;</div>
+            <div class="q-number">Question 2</div>
+            <div class="q-text" id="q-text-q2">Was Moodle clear?</div>
+            <div class="btn-group" id="group-q2" role="group" aria-labelledby="q-text-q2">
+                <button class="vote-btn btn-yes" onclick="answerYesNo('moodleClear','Yes', this, 'q2')" aria-label="Yes">
+                    <span class="btn-icon" aria-hidden="true">&#x1F44D;</span>Yes
+                </button>
+                <button class="vote-btn btn-no" onclick="answerYesNo('moodleClear','No', this, 'q2')" aria-label="No">
+                    <span class="btn-icon" aria-hidden="true">&#x1F44E;</span>No
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="screen" id="screen-q3">
+        <div class="question-area">
+            <div class="q-emoji" aria-hidden="true">&#x1F389;</div>
+            <div class="q-number">Question 3</div>
+            <div class="q-text" id="q-text-q3">Did you have fun in Week 1?</div>
+            <div class="btn-group" id="group-q3" role="group" aria-labelledby="q-text-q3">
+                <button class="vote-btn btn-yes" onclick="answerYesNo('hadFun','Yes', this, 'q3')" aria-label="Yes">
+                    <span class="btn-icon" aria-hidden="true">&#x1F44D;</span>Yes
+                </button>
+                <button class="vote-btn btn-no" onclick="answerYesNo('hadFun','No', this, 'q3')" aria-label="No">
+                    <span class="btn-icon" aria-hidden="true">&#x1F44E;</span>No
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="screen" id="screen-q4">
+        <div class="question-area">
+            <div class="q-emoji" aria-hidden="true">&#x1F91D;</div>
+            <div class="q-number">Question 4</div>
+            <div class="q-text" id="q-text-q4">Have you met your team?</div>
+            <div class="btn-group" id="group-q4" role="group" aria-labelledby="q-text-q4">
+                <button class="vote-btn btn-yes" onclick="answerYesNo('metTeam','Yes', this, 'q4')" aria-label="Yes">
+                    <span class="btn-icon" aria-hidden="true">&#x1F44D;</span>Yes
+                </button>
+                <button class="vote-btn btn-no" onclick="answerYesNo('metTeam','No', this, 'q4')" aria-label="No">
+                    <span class="btn-icon" aria-hidden="true">&#x1F44E;</span>No
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="screen" id="screen-q5">
+        <div class="question-area">
+            <div class="q-emoji" aria-hidden="true">&#x1F356;</div>
+            <div class="q-number">Question 5</div>
+            <div class="q-text" id="q-text-q5">Did you enjoy the BBQ?</div>
+            <div class="btn-group" id="group-q5" role="group" aria-labelledby="q-text-q5">
+                <button class="vote-btn btn-yes" onclick="answerYesNo('enjoyedBBQ','Yes', this, 'q5')" aria-label="Yes">
+                    <span class="btn-icon" aria-hidden="true">&#x1F44D;</span>Yes
+                </button>
+                <button class="vote-btn btn-no" onclick="answerYesNo('enjoyedBBQ','No', this, 'q5')" aria-label="No">
+                    <span class="btn-icon" aria-hidden="true">&#x1F44E;</span>No
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Q6 (Stars) -->
+    <div class="screen" id="screen-q6">
+        <div class="question-area">
+            <div class="q-emoji" aria-hidden="true">&#x1F9F1;</div>
+            <div class="q-number">Question 6</div>
+            <div class="q-text" id="q-text-q6">How would you rate the Lego Day?</div>
+            <div class="star-group" id="group-q6" role="group" aria-labelledby="q-text-q6">
+                <button class="star-btn" onclick="answerStar(1, this)" aria-label="Rate 1 out of 5">
+                    <span class="star-icon" aria-hidden="true">&#x2B50;</span>
+                    <span class="star-num">1</span>
+                </button>
+                <button class="star-btn" onclick="answerStar(2, this)" aria-label="Rate 2 out of 5">
+                    <span class="star-icon" aria-hidden="true">&#x2B50;</span>
+                    <span class="star-num">2</span>
+                </button>
+                <button class="star-btn" onclick="answerStar(3, this)" aria-label="Rate 3 out of 5">
+                    <span class="star-icon" aria-hidden="true">&#x2B50;</span>
+                    <span class="star-num">3</span>
+                </button>
+                <button class="star-btn" onclick="answerStar(4, this)" aria-label="Rate 4 out of 5">
+                    <span class="star-icon" aria-hidden="true">&#x2B50;</span>
+                    <span class="star-num">4</span>
+                </button>
+                <button class="star-btn" onclick="answerStar(5, this)" aria-label="Rate 5 out of 5">
+                    <span class="star-icon" aria-hidden="true">&#x2B50;</span>
+                    <span class="star-num">5</span>
+                </button>
+            </div>
+            <div class="star-labels">
+                <span class="star-label">Poor</span>
+                <span class="star-label">Amazing</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- THANKS -->
+    <div class="screen" id="screen-thanks">
+        <div class="thanks-area">
+            <div class="thanks-check">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#231F20" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
+            <div class="thanks-title">You're all done!</div>
+            <div class="thanks-sub">Thanks for sharing your feedback.<br>Have an awesome Term!</div>
+            <div class="thanks-badge">DESN1000 &middot; Week 1 Survey</div>
+            <button class="edit-btn" onclick="goBack()" aria-label="Go back and edit responses">&larr; Edit Responses</button>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer-bar" role="contentinfo">
+        <span>UNSW Sydney &middot; School of Mechanical &amp; Manufacturing Engineering</span>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const totalQuestions = 6;
+        const questionOrder = ['q1','q2','q3','q4','q5','q6'];
+        const questionIds = ['findLecture','moodleClear','hadFun','metTeam','enjoyedBBQ','legoRating'];
+
+        let voterToken = localStorage.getItem('poll-voter-token');
+        if (!voterToken) {
+            voterToken = crypto.randomUUID();
+            localStorage.setItem('poll-voter-token', voterToken);
+        }
+
+        let myAnswers = {};
+        let currentScreenIdx = -1; // -1=intro, 0-5=q1-q6, 6=thanks
+
+        function getAnsweredCount() {
+            return Object.keys(myAnswers).length;
+        }
+
+        function updateProgress() {
+            const answered = getAnsweredCount();
+            const pct = (answered / totalQuestions) * 100;
+            const fill = document.getElementById('progress-fill');
+            fill.style.width = pct + '%';
+            fill.setAttribute('aria-valuenow', answered);
+            document.getElementById('progress-text').textContent = answered + ' / ' + totalQuestions;
+            document.getElementById('back-btn').style.display = currentScreenIdx > 0 ? '' : 'none';
+        }
+
+        function restoreAnswerState(screenId) {
+            const qIdx = questionOrder.indexOf(screenId);
+            if (qIdx < 0) return;
+
+            const qId = questionIds[qIdx];
+
+            if (qIdx < 5) {
+                const group = document.getElementById('group-' + screenId);
+                group.classList.remove('disabled');
+                group.querySelectorAll('.vote-btn').forEach(b => b.classList.remove('selected'));
+                if (myAnswers[qId]) {
+                    const cls = myAnswers[qId] === 'Yes' ? 'btn-yes' : 'btn-no';
+                    const btn = group.querySelector('.' + cls);
+                    if (btn) btn.classList.add('selected');
+                }
+            } else {
+                const group = document.getElementById('group-q6');
+                group.classList.remove('disabled');
+                group.querySelectorAll('.star-btn').forEach(b => b.classList.remove('active'));
+                if (myAnswers.legoRating) {
+                    const rating = parseInt(myAnswers.legoRating);
+                    group.querySelectorAll('.star-btn').forEach((b, i) => {
+                        if (i < rating) b.classList.add('active');
+                    });
+                }
+            }
+        }
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-' + id).classList.add('active');
+            restoreAnswerState(id);
+            updateProgress();
+        }
+
+        function startSurvey() {
+            if (navigator.vibrate) navigator.vibrate(15);
+            document.getElementById('progress-container').style.display = '';
+            currentScreenIdx = 0;
+            showScreen('q1');
+        }
+
+        function answerYesNo(question, value, btn, qId) {
+            const group = document.getElementById('group-' + qId);
+            if (group.classList.contains('disabled')) return;
+            group.classList.add('disabled');
+
+            group.querySelectorAll('.vote-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            if (navigator.vibrate) navigator.vibrate(15);
+
+            myAnswers[question] = value;
+            socket.emit('answer', { question, value, token: voterToken });
+
+            const idx = questionOrder.indexOf(qId);
+
+            setTimeout(() => {
+                if (idx < questionOrder.length - 1) {
+                    currentScreenIdx = idx + 1;
+                    showScreen(questionOrder[idx + 1]);
+                } else {
+                    currentScreenIdx = 6;
+                    showScreen('thanks');
+                    document.getElementById('progress-container').style.display = 'none';
+                }
+            }, 500);
+        }
+
+        function answerStar(rating, btn) {
+            const group = document.getElementById('group-q6');
+            if (group.classList.contains('disabled')) return;
+            group.classList.add('disabled');
+
+            group.querySelectorAll('.star-btn').forEach((b, i) => {
+                b.classList.toggle('active', i < rating);
+            });
+
+            if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
+
+            myAnswers.legoRating = String(rating);
+            socket.emit('answer', { question: 'legoRating', value: String(rating), token: voterToken });
+
+            setTimeout(() => {
+                currentScreenIdx = 6;
+                showScreen('thanks');
+                document.getElementById('progress-container').style.display = 'none';
+            }, 600);
+        }
+
+        function goBack() {
+            if (currentScreenIdx <= 0) return;
+            if (currentScreenIdx === 6) {
+                document.getElementById('progress-container').style.display = '';
+            }
+            currentScreenIdx--;
+            showScreen(questionOrder[currentScreenIdx]);
+        }
+
+        // ── Connection handling ──
+        socket.on('connect', () => {
+            document.getElementById('connection-banner').classList.remove('visible');
+            socket.emit('getMyVotes', voterToken, (serverVotes) => {
+                if (serverVotes && Object.keys(serverVotes).length > 0) {
+                    myAnswers = serverVotes;
+                    const answered = Object.keys(myAnswers).length;
+                    if (currentScreenIdx === -1) {
+                        if (answered >= totalQuestions) {
+                            currentScreenIdx = 6;
+                            showScreen('thanks');
+                        } else {
+                            document.getElementById('progress-container').style.display = '';
+                            for (let i = 0; i < questionIds.length; i++) {
+                                if (!myAnswers[questionIds[i]]) {
+                                    currentScreenIdx = i;
+                                    showScreen(questionOrder[i]);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        socket.on('disconnect', () => {
+            document.getElementById('connection-banner').classList.add('visible');
+        });
+
+        socket.on('resetAll', () => {
+            myAnswers = {};
+            currentScreenIdx = -1;
+            document.querySelectorAll('.btn-group, .star-group').forEach(g => g.classList.remove('disabled'));
+            document.querySelectorAll('.vote-btn').forEach(b => b.classList.remove('selected'));
+            document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('progress-container').style.display = 'none';
+            showScreen('intro');
+        });
+    </script>
+</body>
+</html>
