@@ -1,0 +1,40 @@
+{
+  "results": {
+    "findLecture": {
+      "Yes": 1,
+      "No": 0
+    },
+    "moodleClear": {
+      "Yes": 0,
+      "No": 1
+    },
+    "hadFun": {
+      "Yes": 1,
+      "No": 0
+    },
+    "metTeam": {
+      "Yes": 0,
+      "No": 1
+    },
+    "enjoyedBBQ": {
+      "Yes": 1,
+      "No": 0
+    },
+    "legoRating": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    }
+  },
+  "votes": {
+    "1e14ddb5-97da-4dfc-90fb-75ee425d0be7": {
+      "findLecture": "Yes",
+      "moodleClear": "No",
+      "hadFun": "Yes",
+      "metTeam": "No",
+      "enjoyedBBQ": "Yes"
+    }
+  }
+}
