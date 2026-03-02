@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DESN1000 – Team Quiz Results</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --unsw-yellow: #FFE600;
+            --unsw-yellow-dark: #E6CF00;
+            --unsw-charcoal: #231F20;
+            --unsw-dark: #0f0f1a;
+            --bg-2: #1a1025;
+            --bg-3: #0d1520;
+            --green: #34D399;
+            --red: #EF4444;
+            --white: #FFFFFF;
+            --card-bg: rgba(255,255,255,0.04);
+            --card-border: rgba(255,255,255,0.07);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--unsw-dark);
+            font-family: 'Inter', -apple-system, sans-serif;
+            color: var(--white);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, var(--unsw-dark) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            z-index: 0;
+        }
+        @keyframes gradientShift {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .grain {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.025;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 256px 256px;
+        }
+        .content-layer {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* ── HEADER ────────────────────────── */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 40px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            flex-shrink: 0;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .header-left img {
+            height: 42px;
+            filter: brightness(0) invert(1);
+        }
+        .header-divider {
+            width: 1px;
+            height: 32px;
+            background: rgba(255,255,255,0.15);
+        }
+        .header-titles h1 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            color: var(--white);
+        }
+        .header-titles span {
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: var(--unsw-yellow);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .conn-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,230,0,0.08);
+            border: 1px solid rgba(255,230,0,0.15);
+            border-radius: 100px;
+            padding: 8px 18px;
+        }
+        .conn-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--unsw-yellow);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .conn-text {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--unsw-yellow);
+            letter-spacing: 0.5px;
+        }
+        .stat-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(52, 211, 153, 0.08);
+            border: 1px solid rgba(52, 211, 153, 0.15);
+            border-radius: 100px;
+            padding: 8px 18px;
+        }
+        .stat-badge .stat-num {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--green);
+        }
+        .stat-badge .stat-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: rgba(52, 211, 153, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── LEADERBOARD ──────────────────── */
+        .leaderboard-area {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 40px 0;
+        }
+        .leaderboard-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+        .leaderboard-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.35);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+        .leaderboard-line {
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,0.06);
+        }
+
+        .entries-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 40px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.1) transparent;
+        }
+        .entries-scroll::-webkit-scrollbar { width: 4px; }
+        .entries-scroll::-webkit-scrollbar-track { background: transparent; }
+        .entries-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+        .entry-card {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 18px 24px;
+            margin-bottom: 10px;
+            animation: entrySlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+        }
+        @keyframes entrySlideIn {
+            from { opacity: 0; transform: translateX(-30px) scale(0.97); }
+            to   { opacity: 1; transform: translateX(0) scale(1); }
+        }
+
+        .entry-rank {
+            font-size: 1.6rem;
+            font-weight: 900;
+            min-width: 52px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .entry-rank.gold { color: var(--unsw-yellow); text-shadow: 0 0 20px rgba(255,230,0,0.3); }
+        .entry-rank.silver { color: #C0C0C0; text-shadow: 0 0 20px rgba(192,192,192,0.2); }
+        .entry-rank.bronze { color: #CD7F32; text-shadow: 0 0 20px rgba(205,127,50,0.2); }
+        .entry-rank.normal { color: rgba(255,255,255,0.35); }
+
+        .entry-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .entry-team {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 4px;
+        }
+        .entry-names {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .name-pill {
+            background: rgba(255, 230, 0, 0.08);
+            border: 1px solid rgba(255, 230, 0, 0.12);
+            border-radius: 100px;
+            padding: 3px 12px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.7);
+        }
+        .entry-time {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.2);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        /* Top 3 special card glow */
+        .entry-card.top-1 {
+            border-color: rgba(255, 230, 0, 0.2);
+            background: rgba(255, 230, 0, 0.04);
+        }
+        .entry-card.top-2 {
+            border-color: rgba(192, 192, 192, 0.15);
+            background: rgba(192, 192, 192, 0.03);
+        }
+        .entry-card.top-3 {
+            border-color: rgba(205, 127, 50, 0.15);
+            background: rgba(205, 127, 50, 0.03);
+        }
+
+        /* ── EMPTY STATE ──────────────────── */
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            gap: 16px;
+            opacity: 0.4;
+        }
+        .empty-state .empty-icon {
+            font-size: 3.5rem;
+        }
+        .empty-state .empty-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .empty-state .empty-sub {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* ── RESET OVERLAY ─────────────────── */
+        .reset-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            z-index: 50;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .reset-overlay.show { display: flex; }
+        .reset-overlay label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .reset-overlay input {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--red);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-align: center;
+            outline: none;
+            width: 260px;
+        }
+        .reset-overlay input::placeholder { color: rgba(255,255,255,0.25); }
+        .reset-overlay button {
+            background: var(--red);
+            border: none;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 12px 40px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .reset-overlay .cancel-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.4);
+            font-size: 0.75rem;
+            padding: 8px 28px;
+        }
+
+        .reset-overlay button:focus-visible,
+        .reset-overlay input:focus-visible {
+            outline: 2px solid var(--unsw-yellow);
+            outline-offset: 2px;
+        }
+
+        .clear-btn {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(239, 68, 68, 0.10);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            border-radius: 100px;
+            padding: 8px 18px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--red);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+        }
+        .clear-btn:hover {
+            background: rgba(239, 68, 68, 0.18);
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+        .clear-btn:active { transform: scale(0.96); }
+        .clear-btn:focus-visible {
+            outline: 2px solid var(--red);
+            outline-offset: 2px;
+        }
+        .clear-btn svg {
+            width: 14px;
+            height: 14px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .conn-lost-banner {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(239, 68, 68, 0.92);
+            backdrop-filter: blur(12px);
+            color: white;
+            text-align: center;
+            padding: 10px 16px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            z-index: 100;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .conn-lost-banner.visible { transform: translateY(0); }
+        .conn-lost-spinner {
+            width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="bg-gradient"></div>
+    <div class="grain"></div>
+
+    <div id="conn-lost-banner" class="conn-lost-banner" role="alert" aria-live="assertive">
+        <div class="conn-lost-spinner"></div>
+        <span>Connection lost. Reconnecting&#8230;</span>
+    </div>
+
+    <div class="content-layer">
+
+        <!-- Reset Overlay -->
+        <div class="reset-overlay" id="reset-overlay" role="dialog" aria-label="Admin Reset">
+            <label for="reset-code">Admin Reset</label>
+            <input type="password" id="reset-code" placeholder="Enter reset code" onkeydown="if(event.key==='Enter') doReset()" />
+            <button onclick="doReset()">Reset All</button>
+            <button class="cancel-btn" onclick="closeReset()">Cancel</button>
+        </div>
+
+        <!-- Header -->
+        <div class="header" role="banner">
+            <div class="header-left">
+                <img src="/unsw-logo.png" alt="UNSW Sydney">
+                <div class="header-divider"></div>
+                <div class="header-titles">
+                    <span>DESN1000 &middot; Engineering Design &amp; Innovation</span>
+                    <h1 id="main-title" style="cursor:default;">How Well Do You Know Your Team?</h1>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="stat-badge">
+                    <span class="stat-num" id="total-submissions">0</span>
+                    <span class="stat-label">Submitted</span>
+                </div>
+                <div class="conn-badge">
+                    <div class="conn-dot"></div>
+                    <div class="conn-text" aria-live="polite"><span id="conn-count">0</span> Connected</div>
+                </div>
+                <button class="clear-btn" onclick="openReset()" title="Clear all submissions">
+                    <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6h12z"/></svg>
+                    Clear
+                </button>
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="leaderboard-area">
+            <div class="leaderboard-header">
+                <div class="leaderboard-title">Live Submissions</div>
+                <div class="leaderboard-line"></div>
+            </div>
+
+            <div class="entries-scroll" id="entries-scroll">
+                <div class="empty-state" id="empty-state">
+                    <div class="empty-icon">&#x1F91D;</div>
+                    <div class="empty-text">Waiting for submissions&hellip;</div>
+                    <div class="empty-sub">Entries will appear here in real time</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let entries = [];
+        const emptyStateEl = document.getElementById('empty-state');
+
+        function formatTime(timestamp) {
+            const d = new Date(timestamp);
+            return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+
+        function rankClass(pos) {
+            if (pos === 1) return 'gold';
+            if (pos === 2) return 'silver';
+            if (pos === 3) return 'bronze';
+            return 'normal';
+        }
+
+        function cardClass(pos) {
+            if (pos <= 3) return 'top-' + pos;
+            return '';
+        }
+
+        function renderEntry(entry, animate) {
+            const card = document.createElement('div');
+            card.className = 'entry-card ' + cardClass(entry.position);
+            if (animate) {
+                card.style.animationDelay = '0s';
+            } else {
+                card.style.animation = 'none';
+            }
+
+            const namesPills = entry.names.map(n =>
+                '<span class="name-pill">' + escapeHtml(n) + '</span>'
+            ).join('');
+
+            card.innerHTML =
+                '<div class="entry-rank ' + rankClass(entry.position) + '">#' + entry.position + '</div>' +
+                '<div class="entry-info">' +
+                    '<div class="entry-team">Stream ' + escapeHtml(entry.stream) + ' &middot; Team ' + escapeHtml(entry.teamLetter) + '</div>' +
+                    '<div class="entry-names">' + namesPills + '</div>' +
+                '</div>' +
+                '<div class="entry-time">' + formatTime(entry.timestamp) + '</div>';
+
+            return card;
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function renderAll() {
+            const scroll = document.getElementById('entries-scroll');
+            scroll.innerHTML = '';
+
+            if (entries.length === 0) {
+                emptyStateEl.style.display = '';
+                scroll.appendChild(emptyStateEl);
+                document.getElementById('total-submissions').textContent = '0';
+                return;
+            }
+
+            emptyStateEl.style.display = 'none';
+            
+            // Optimisation: Use DocumentFragment to batch DOM inserts and avoid layout thrashing
+            const fragment = document.createDocumentFragment();
+            entries.forEach(e => fragment.appendChild(renderEntry(e, false)));
+            scroll.appendChild(fragment);
+            
+            document.getElementById('total-submissions').textContent = entries.length;
+        }
+
+        function addEntry(entry) {
+            if (entries.some(e => e.position === entry.position)) return;
+            entries.push(entry);
+
+            const scroll = document.getElementById('entries-scroll');
+            emptyStateEl.style.display = 'none';
+
+            scroll.appendChild(renderEntry(entry, true));
+            document.getElementById('total-submissions').textContent = entries.length;
+
+            scroll.scrollTop = scroll.scrollHeight;
+        }
+
+        // ── Hidden Reset: triple-click title (kept as alternative) ──
+        let clickCount = 0, clickTimer = null;
+        document.getElementById('main-title').addEventListener('click', () => {
+            clickCount++;
+            if (clickCount === 3) {
+                clickCount = 0;
+                clearTimeout(clickTimer);
+                openReset();
+            } else {
+                clearTimeout(clickTimer);
+                clickTimer = setTimeout(() => { clickCount = 0; }, 600);
+            }
+        });
+        function openReset() {
+            document.getElementById('reset-overlay').classList.add('show');
+            document.getElementById('reset-code').value = '';
+            document.getElementById('reset-code').focus();
+        }
+        function doReset() {
+            socket.emit('adminReset', document.getElementById('reset-code').value);
+            document.getElementById('reset-code').value = '';
+            closeReset();
+        }
+        function closeReset() {
+            document.getElementById('reset-overlay').classList.remove('show');
+        }
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeReset();
+        });
+
+        // ── Socket Events ──
+        socket.on('connect', () => {
+            document.getElementById('conn-lost-banner').classList.remove('visible');
+        });
+        socket.on('disconnect', () => {
+            document.getElementById('conn-lost-banner').classList.add('visible');
+        });
+
+        socket.on('init', (data) => {
+            document.getElementById('conn-count').textContent = data.totalConnections;
+            entries = (data.submissions || []).map(s => ({
+                stream: s.stream,
+                teamLetter: s.teamLetter,
+                names: s.names,
+                position: s.position,
+                timestamp: s.timestamp
+            }));
+            renderAll();
+        });
+
+        socket.on('updateConnections', (count) => {
+            document.getElementById('conn-count').textContent = count;
+        });
+
+        socket.on('newSubmission', (entry) => {
+            addEntry(entry);
+        });
+
+        socket.on('resetAll', () => {
+            entries = [];
+            renderAll();
+        });
+    </script>
+</body>
+</html>
