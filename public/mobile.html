@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DESN1000 – How Well Do You Know Your Team?</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-1: #0f0f1a;
+            --bg-2: #1a1025;
+            --bg-3: #0d1520;
+            --accent: #FFE600;
+            --accent-dim: rgba(255, 230, 0, 0.12);
+            --accent-glow: rgba(255, 230, 0, 0.35);
+            --green: #34D399;
+            --green-glow: rgba(52, 211, 153, 0.3);
+            --red: #F87171;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --text-muted: rgba(255, 255, 255, 0.3);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-1);
+            color: var(--text-primary);
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            z-index: 0;
+        }
+        @keyframes gradientShift {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .grain {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.035;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 256px 256px;
+        }
+
+        .content-wrap {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            min-height: 100dvh;
+        }
+
+        /* ── CONNECTION BANNER ──────────────── */
+        .connection-banner {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: rgba(248, 113, 113, 0.92);
+            backdrop-filter: blur(12px);
+            color: white;
+            text-align: center;
+            padding: 10px 16px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            z-index: 100;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .connection-banner.visible { transform: translateY(0); }
+        .connection-banner .spinner {
+            width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── HEADER ─────────────────────────── */
+        .header {
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header img {
+            height: 32px;
+            width: auto;
+            filter: brightness(0) invert(1);
+        }
+        .header-text {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+        .header-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        .header-subtitle {
+            font-size: 0.6rem;
+            font-weight: 400;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        .live-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 230, 0, 0.08);
+            border: 1px solid rgba(255, 230, 0, 0.15);
+            border-radius: 100px;
+            padding: 6px 14px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 0.3px;
+            transition: opacity 0.3s;
+        }
+        .live-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: livePulse 2s ease-in-out infinite;
+        }
+        @keyframes livePulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--accent-glow); }
+            50% { opacity: 0.5; box-shadow: 0 0 0 4px transparent; }
+        }
+
+        /* ── SCREENS ────────────────────────── */
+        .screen {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+        }
+        .screen.active { display: flex; }
+        .screen.fade-in {
+            animation: fadeSlideUp 0.45s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── INTRO ──────────────────────────── */
+        .intro-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 24px;
+            max-width: 480px;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+        .floating-emojis {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .float-emoji {
+            position: absolute;
+            font-size: 1.4rem;
+            opacity: 0;
+            animation: floatUp linear infinite;
+        }
+        @keyframes floatUp {
+            0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+            5%   { opacity: 0.1; }
+            90%  { opacity: 0.1; }
+            100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+        }
+        .intro-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .intro-emoji {
+            font-size: 4rem;
+            margin-bottom: 24px;
+            filter: drop-shadow(0 4px 16px rgba(0,0,0,0.4));
+        }
+        .intro-title {
+            font-size: 1.9rem;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--accent) 30%, #FFFFFF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .intro-sub {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+        .intro-speed {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 36px;
+            letter-spacing: 0.5px;
+            animation: speedPulse 2s ease-in-out infinite;
+        }
+        @keyframes speedPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .start-btn {
+            background: var(--accent);
+            color: var(--bg-1);
+            border: none;
+            border-radius: 16px;
+            padding: 20px 56px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 8px 32px var(--accent-glow);
+            -webkit-tap-highlight-color: transparent;
+            width: 100%;
+            max-width: 320px;
+            animation: btnGlow 3s ease-in-out infinite;
+        }
+        @keyframes btnGlow {
+            0%, 100% { box-shadow: 0 8px 32px var(--accent-glow); }
+            50% { box-shadow: 0 8px 48px rgba(255, 230, 0, 0.5), 0 0 0 3px rgba(255, 230, 0, 0.08); }
+        }
+        .start-btn:active {
+            transform: scale(0.96);
+            box-shadow: 0 4px 16px rgba(255, 230, 0, 0.25);
+            animation: none;
+        }
+
+        /* ── FORM SCREEN ────────────────────── */
+        .form-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 20px 32px;
+            max-width: 480px;
+            width: 100%;
+            margin: 0 auto;
+            overflow-y: auto;
+        }
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 28px;
+            padding: 32px 22px 28px;
+            width: 100%;
+        }
+        .form-title {
+            font-size: 1.3rem;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+            text-shadow: 0 2px 16px rgba(0,0,0,0.25);
+        }
+        .form-subtitle {
+            font-size: 0.75rem;
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 28px;
+        }
+
+        .field-group {
+            margin-bottom: 20px;
+        }
+        .field-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .field-row .field-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        .field-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .required-dot {
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: var(--accent);
+            flex-shrink: 0;
+        }
+        .field-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 14px 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.25s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .field-input::placeholder {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .field-input:focus {
+            border-color: rgba(255, 230, 0, 0.4);
+            background: rgba(255, 230, 0, 0.04);
+            box-shadow: 0 0 0 3px rgba(255, 230, 0, 0.08);
+        }
+        .field-input.filled {
+            border-color: rgba(52, 211, 153, 0.3);
+        }
+
+        .names-section-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .names-hint {
+            font-size: 0.62rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+        }
+        .name-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+        .name-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .name-num {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+        .name-num.filled {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-1);
+        }
+        .name-row .field-input {
+            flex: 1;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: var(--accent);
+            color: var(--bg-1);
+            border: none;
+            border-radius: 16px;
+            padding: 18px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.25s;
+            box-shadow: 0 6px 24px var(--accent-glow);
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        .submit-btn:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+        .submit-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .submit-btn .spinner-inline {
+            display: none;
+            width: 20px; height: 20px;
+            border: 2.5px solid rgba(15, 15, 26, 0.2);
+            border-top-color: var(--bg-1);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin: 0 auto;
+        }
+        .submit-btn.loading .btn-label { visibility: hidden; }
+        .submit-btn.loading .spinner-inline { display: block; position: absolute; top: 50%; left: 50%; margin: -10px 0 0 -10px; }
+
+        .validation-msg {
+            text-align: center;
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--red);
+            margin-top: 10px;
+            min-height: 1.2em;
+        }
+
+        /* ── THANKS SCREEN ──────────────────── */
+        .thanks-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 24px;
+            max-width: 480px;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+        .confetti-container {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+        .confetti-piece {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            top: -10px;
+            opacity: 0;
+        }
+        .confetti-piece.go {
+            animation: confettiFall linear forwards;
+        }
+        @keyframes confettiFall {
+            0%   { opacity: 1; transform: rotateZ(0deg) scale(1); }
+            100% { opacity: 0; transform: rotateZ(720deg) scale(0.4); }
+        }
+        .thanks-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .thanks-position {
+            font-size: 4rem;
+            font-weight: 900;
+            color: var(--accent);
+            line-height: 1;
+            text-shadow: 0 0 40px var(--accent-glow);
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        .thanks-pos-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 4px;
+            margin-bottom: 24px;
+        }
+        .thanks-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            text-shadow: 0 2px 16px rgba(0,0,0,0.25);
+        }
+        .thanks-message {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--green);
+            margin-bottom: 10px;
+            opacity: 0;
+            animation: fadeSlideUp 0.4s ease 0.45s forwards;
+        }
+        .thanks-sub {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .thanks-badge {
+            margin-top: 32px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--accent);
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 10px 24px;
+            border-radius: 100px;
+        }
+
+        /* ── FOOTER ─────────────────────────── */
+        .footer-bar {
+            background: rgba(0, 0, 0, 0.25);
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 12px 20px;
+            text-align: center;
+        }
+        .footer-bar span {
+            font-size: 0.6rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        /* ── Focus ──────────────────────────── */
+        .start-btn:focus-visible,
+        .submit-btn:focus-visible,
+        .field-input:focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-gradient"></div>
+    <div class="grain"></div>
+
+    <div class="content-wrap">
+
+        <div id="connection-banner" class="connection-banner" role="alert" aria-live="assertive">
+            <div class="spinner"></div>
+            <span>Connection lost. Reconnecting&#8230;</span>
+        </div>
+
+        <!-- HEADER -->
+        <div class="header" role="banner">
+            <div class="header-left">
+                <img src="/unsw-logo.png" alt="UNSW Sydney">
+                <div class="header-text">
+                    <div class="header-title">DESN1000</div>
+                    <div class="header-subtitle">Engineering Design &amp; Innovation</div>
+                </div>
+            </div>
+            <div class="live-pill" id="live-pill">
+                <div class="live-dot"></div>
+                <span id="live-count">0</span>&nbsp;online
+            </div>
+        </div>
+
+        <!-- INTRO -->
+        <div class="screen active fade-in" id="screen-intro">
+            <div class="intro-area">
+                <div class="floating-emojis" id="floating-emojis"></div>
+                <div class="intro-content">
+                    <div class="intro-emoji" aria-hidden="true">&#x1F91D;</div>
+                    <div class="intro-title">How Well Do You<br>Know Your Team?</div>
+                    <div class="intro-sub">Name as many teammates as you can.<br>First names only!</div>
+                    <div class="intro-speed">&#x26A1; First to submit wins a prize &#x26A1;</div>
+                    <button class="start-btn" onclick="startQuiz()">Let's Go</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FORM -->
+        <div class="screen" id="screen-form">
+            <div class="form-area">
+                <div class="glass-card">
+                    <div class="form-title">&#x1F91D; Your Team</div>
+                    <div class="form-subtitle">Fill in your details and name your teammates</div>
+
+                    <div class="field-row">
+                        <div class="field-group">
+                            <div class="field-label"><span class="required-dot"></span> Stream</div>
+                            <input class="field-input" id="input-stream" type="text" placeholder="e.g. M1" maxlength="30" autocomplete="off" oninput="onFieldChange()">
+                        </div>
+                        <div class="field-group">
+                            <div class="field-label"><span class="required-dot"></span> Team Letter</div>
+                            <input class="field-input" id="input-team" type="text" placeholder="e.g. A" maxlength="3" autocomplete="off" style="text-transform:uppercase;" oninput="onFieldChange()">
+                        </div>
+                    </div>
+
+                    <div class="names-section-label"><span class="required-dot"></span> Teammate Names</div>
+                    <div class="names-hint">First names only</div>
+
+                    <div class="name-fields">
+                        <div class="name-row">
+                            <div class="name-num" id="num-1">1</div>
+                            <input class="field-input" id="name-1" type="text" placeholder="First name" maxlength="30" autocomplete="off" oninput="onFieldChange()">
+                        </div>
+                        <div class="name-row">
+                            <div class="name-num" id="num-2">2</div>
+                            <input class="field-input" id="name-2" type="text" placeholder="First name" maxlength="30" autocomplete="off" oninput="onFieldChange()">
+                        </div>
+                        <div class="name-row">
+                            <div class="name-num" id="num-3">3</div>
+                            <input class="field-input" id="name-3" type="text" placeholder="First name" maxlength="30" autocomplete="off" oninput="onFieldChange()">
+                        </div>
+                        <div class="name-row">
+                            <div class="name-num" id="num-4">4</div>
+                            <input class="field-input" id="name-4" type="text" placeholder="First name" maxlength="30" autocomplete="off" oninput="onFieldChange()">
+                        </div>
+                        <div class="name-row">
+                            <div class="name-num" id="num-5">5</div>
+                            <input class="field-input" id="name-5" type="text" placeholder="First name" maxlength="30" autocomplete="off" oninput="onFieldChange()">
+                        </div>
+                    </div>
+
+                    <button class="submit-btn" id="submit-btn" onclick="submitTeam()" disabled>
+                        <span class="btn-label">Submit</span>
+                        <div class="spinner-inline"></div>
+                    </button>
+                    <div class="validation-msg" id="validation-msg"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- THANKS -->
+        <div class="screen" id="screen-thanks">
+            <div class="thanks-area">
+                <div class="confetti-container" id="confetti-container"></div>
+                <div class="thanks-content">
+                    <div class="thanks-position" id="thanks-position">#1</div>
+                    <div class="thanks-pos-label">to submit</div>
+                    <div class="thanks-title">You're in!</div>
+                    <div class="thanks-message" id="thanks-message"></div>
+                    <div class="thanks-sub">Thanks for playing.<br>Good luck!</div>
+                    <div class="thanks-badge">DESN1000 &middot; Team Quiz</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer-bar" role="contentinfo">
+            <span>UNSW Sydney &middot; School of Mechanical &amp; Manufacturing Engineering</span>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        const positionMessages = {
+            1: "FIRST! You're the fastest!",
+            2: 'Second place! So close!',
+            3: 'Bronze medal! Nice work!'
+        };
+        const defaultMessages = [
+            'Submitted!', 'Nicely done!', 'You made it!',
+            'Team spirit!', 'Locked in!'
+        ];
+
+        let voterToken = localStorage.getItem('poll-voter-token');
+        if (!voterToken) {
+            voterToken = crypto.randomUUID();
+            localStorage.setItem('poll-voter-token', voterToken);
+        }
+
+        let submitted = false;
+
+        // ── Floating emojis ──
+        (function spawnFloatingEmojis() {
+            const container = document.getElementById('floating-emojis');
+            const emojis = ['\u{1F91D}','\u{1F3C6}','\u{2B50}','\u{1F525}','\u{1F680}','\u{1F4AA}','\u{26A1}','\u{1F3AF}'];
+            for (let i = 0; i < 12; i++) {
+                const el = document.createElement('div');
+                el.className = 'float-emoji';
+                el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                el.style.left = (Math.random() * 90 + 5) + '%';
+                el.style.bottom = '-40px';
+                el.style.animationDuration = (8 + Math.random() * 10) + 's';
+                el.style.animationDelay = (Math.random() * 10) + 's';
+                el.style.fontSize = (1 + Math.random() * 0.8) + 'rem';
+                container.appendChild(el);
+            }
+        })();
+
+        // ── Confetti ──
+        function fireConfetti() {
+            const container = document.getElementById('confetti-container');
+            container.innerHTML = '';
+            const colors = ['#FFE600','#34D399','#F87171','#60A5FA','#A78BFA','#FB923C','#FFFFFF'];
+            for (let i = 0; i < 60; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = (Math.random() * 100) + '%';
+                piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.width = (5 + Math.random() * 6) + 'px';
+                piece.style.height = (5 + Math.random() * 6) + 'px';
+                piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                piece.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+                piece.style.animationDelay = (Math.random() * 0.6) + 's';
+                container.appendChild(piece);
+                requestAnimationFrame(() => piece.classList.add('go'));
+            }
+        }
+
+        // ── Screen switching ──
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active', 'fade-in'));
+            const screen = document.getElementById('screen-' + id);
+            screen.classList.add('active', 'fade-in');
+        }
+
+        function startQuiz() {
+            if (navigator.vibrate) navigator.vibrate(15);
+            showScreen('form');
+            document.getElementById('input-stream').focus();
+        }
+
+        // ── Form validation ──
+        function getNames() {
+            const names = [];
+            for (let i = 1; i <= 5; i++) {
+                const val = document.getElementById('name-' + i).value.trim();
+                if (val) names.push(val);
+            }
+            return names;
+        }
+
+        function onFieldChange() {
+            const stream = document.getElementById('input-stream').value.trim();
+            const team = document.getElementById('input-team').value.trim();
+            const names = getNames();
+            const valid = stream.length > 0 && team.length > 0 && names.length >= 2;
+
+            document.getElementById('submit-btn').disabled = !valid;
+            document.getElementById('validation-msg').textContent = '';
+
+            // Update filled states on inputs
+            document.getElementById('input-stream').classList.toggle('filled', stream.length > 0);
+            document.getElementById('input-team').classList.toggle('filled', team.length > 0);
+
+            for (let i = 1; i <= 5; i++) {
+                const val = document.getElementById('name-' + i).value.trim();
+                document.getElementById('num-' + i).classList.toggle('filled', val.length > 0);
+                document.getElementById('name-' + i).classList.toggle('filled', val.length > 0);
+            }
+        }
+
+        // ── Submit ──
+        function submitTeam() {
+            if (submitted) return;
+
+            const stream = document.getElementById('input-stream').value.trim();
+            const team = document.getElementById('input-team').value.trim().toUpperCase();
+            const names = getNames();
+
+            if (!stream || !team || names.length < 2) {
+                document.getElementById('validation-msg').textContent = 'Please fill in Stream, Team Letter, and at least 2 names.';
+                return;
+            }
+
+            const btn = document.getElementById('submit-btn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            if (navigator.vibrate) navigator.vibrate([15, 30, 15]);
+
+            socket.emit('submitTeam', {
+                stream,
+                teamLetter: team,
+                names,
+                token: voterToken
+            }, (response) => {
+                btn.classList.remove('loading');
+                if (response && response.position) {
+                    submitted = true;
+                    showThanks(response.position);
+                } else {
+                    btn.disabled = false;
+                    document.getElementById('validation-msg').textContent = 'Something went wrong. Please try again.';
+                }
+            });
+        }
+
+        function showThanks(position) {
+            document.getElementById('thanks-position').textContent = '#' + position;
+
+            const msg = positionMessages[position] ||
+                defaultMessages[Math.floor(Math.random() * defaultMessages.length)];
+            document.getElementById('thanks-message').textContent = msg;
+
+            showScreen('thanks');
+            fireConfetti();
+        }
+
+        // ── Socket.IO ──
+        socket.on('connect', () => {
+            document.getElementById('connection-banner').classList.remove('visible');
+
+            socket.emit('getMySubmission', voterToken, (data) => {
+                if (data && data.position) {
+                    submitted = true;
+                    showThanks(data.position);
+                }
+            });
+        });
+
+        socket.on('disconnect', () => {
+            document.getElementById('connection-banner').classList.add('visible');
+        });
+
+        socket.on('updateConnections', (count) => {
+            document.getElementById('live-count').textContent = count;
+        });
+
+        socket.on('init', (data) => {
+            document.getElementById('live-count').textContent = data.totalConnections;
+        });
+
+        socket.on('resetAll', () => {
+            submitted = false;
+            document.getElementById('input-stream').value = '';
+            document.getElementById('input-team').value = '';
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById('name-' + i).value = '';
+                document.getElementById('num-' + i).classList.remove('filled');
+            }
+            onFieldChange();
+            showScreen('intro');
+        });
+    </script>
+</body>
+</html>
